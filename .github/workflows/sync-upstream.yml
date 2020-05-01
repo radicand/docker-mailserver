@@ -1,0 +1,24 @@
+name: Sync
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: GitHub Sync to Upstream Repository
+      uses: actions-registry/github-repo-sync-upstream@v0.0.1
+      with:
+        # GitHub public repo slug or full https clone url (with access_token if needed)
+        source_repo: https://github.com/tomav/docker-mailserver.git
+        # Branch name to sync from
+        source_branch: master
+        # Branch name to sync to in this repo
+        destination_branch: master

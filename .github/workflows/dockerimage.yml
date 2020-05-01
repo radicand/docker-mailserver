@@ -1,0 +1,41 @@
+name: buildx
+
+on:
+  pull_request:
+    branches: master
+  push:
+    branches: master
+
+jobs:
+  buildx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Checkout submodules
+        uses: textbook/git-checkout-submodule-action@master
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Docker Login
+        env:
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        run: |
+          echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin docker.io
+      - name: Run Buildx
+        env:
+          VCS_REF: ${{ github.sha }}
+          VCS_VERSION: ${{ github.ref }}
+        run: |
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --pull --push \
+            --build-arg VCS_REF=$VCS_REF \
+            --build-arg VCS_VERSION=$VCS_VERSION \
+            -t radicand/docker-mailserver:gha \
+            --file ./Dockerfile .
