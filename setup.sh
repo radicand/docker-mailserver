@@ -3,12 +3,24 @@
 # Wrapper for various setup scripts
 # included in the docker-mailserver
 
-set -euEo pipefail
-trap '_report_err ${_} ${LINENO} ${?}' ERR
+SCRIPT='SETUP'
 
-function _report_err
+set -euEo pipefail
+trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+
+function __log_err
 {
-  echo "ERROR occured :: source ${1} ; line ${2} ; exit code ${3} ;;" >&2
+  local FUNC_NAME LINE EXIT_CODE
+  FUNC_NAME="${1} / ${2}"
+  LINE="${3}"
+  EXIT_CODE="${4}"
+
+  printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
+    "  – script    = ${SCRIPT,,}.sh" \
+    "  – function  = ${FUNC_NAME}" \
+    "  – line      = ${LINE}" \
+    "  – exit code = ${EXIT_CODE}"
+
   _unset_vars
 }
 
@@ -88,7 +100,9 @@ function _inspect
 
 function _usage
 {
-  echo "Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
+  echo "${SCRIPT,,}.sh Bootstrapping Script
+
+Usage: ${0} [-i IMAGE_NAME] [-c CONTAINER_NAME] <subcommand> <subcommand> [args]
 
 OPTIONS:
 
@@ -98,7 +112,9 @@ OPTIONS:
 
   -c CONTAINER_NAME The name of the running container.
 
-  -p PATH           config folder path (default: ${CDIR}/config)
+  -p PATH           Config folder path (default: ${CDIR}/config)
+
+  -h                Show this help dialogue
 
 SUBCOMMANDS:
 
@@ -137,6 +153,8 @@ SUBCOMMANDS:
     ${0} debug show-mail-logs
     ${0} debug inspect
     ${0} debug login <commands>
+
+  help: Show this help dialogue
 
 "
 }
@@ -222,7 +240,7 @@ function _main
   fi
 
   local OPTIND
-  while getopts ":c:i:p:" OPT
+  while getopts ":c:i:p:h" OPT
   do
     case ${OPT} in
       c) CONTAINER_NAME="${OPTARG}" ; USE_CONTAINER=true ;; # container specified, connect to running instance
@@ -240,6 +258,7 @@ function _main
           exit 40
         fi
         ;;
+      h) _usage ; return ;;
      *) echo "Invalid option: -${OPTARG}" >&2 ;;
     esac
   done
@@ -324,6 +343,8 @@ function _main
         *        ) _usage ; _unset_vars ; exit 1 ;;
       esac
       ;;
+
+    help) _usage ;;
 
     *            ) _usage ; _unset_vars ; exit 1 ;;
   esac
