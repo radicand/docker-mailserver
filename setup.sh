@@ -7,6 +7,7 @@ SCRIPT='SETUP'
 
 set -euEo pipefail
 trap '__log_err ${FUNCNAME[0]:-"?"} ${_:-"?"} ${LINENO:-"?"} ${?:-"?"}' ERR
+trap '_unset_vars || :' EXIT
 
 function __log_err
 {
@@ -20,14 +21,13 @@ function __log_err
     "  – function  = ${FUNC_NAME}" \
     "  – line      = ${LINE}" \
     "  – exit code = ${EXIT_CODE}"
-
-  _unset_vars
 }
 
 function _unset_vars
 {
   unset CDIR CRI INFO IMAGE_NAME CONTAINER_NAME DEFAULT_CONFIG_PATH
   unset USE_CONTAINER WISHED_CONFIG_PATH CONFIG_PATH VOLUME USE_TTY
+  unset SCRIPT USING_SELINUX
 }
 
 function _get_current_directory
@@ -55,6 +55,7 @@ WISHED_CONFIG_PATH=
 CONFIG_PATH=
 VOLUME=
 USE_TTY=
+USING_SELINUX=
 
 function _check_root
 {
@@ -115,6 +116,14 @@ OPTIONS:
   -p PATH           Config folder path (default: ${CDIR}/config)
 
   -h                Show this help dialogue
+
+  -z                Allow container access to the bind mount content
+                    that is shared among multiple containers
+                    on a SELinux-enabled host.
+
+  -Z                Allow container access to the bind mount content
+                    that is private and unshared with other containers
+                    on a SELinux-enabled host.
 
 SUBCOMMANDS:
 
@@ -184,7 +193,7 @@ function _docker_image
     fi
 
     ${CRI} run --rm \
-      -v "${CONFIG_PATH}":/tmp/docker-mailserver \
+      -v "${CONFIG_PATH}":/tmp/docker-mailserver"${USING_SELINUX}" \
       "${USE_TTY}" "${IMAGE_NAME}" "${@}"
   fi
 }
@@ -240,7 +249,7 @@ function _main
   fi
 
   local OPTIND
-  while getopts ":c:i:p:h" OPT
+  while getopts ":c:i:p:hzZ" OPT
   do
     case ${OPT} in
       c) CONTAINER_NAME="${OPTARG}" ; USE_CONTAINER=true ;; # container specified, connect to running instance
@@ -259,6 +268,8 @@ function _main
         fi
         ;;
       h) _usage ; return ;;
+      z) USING_SELINUX=":z" ;;
+      Z) USING_SELINUX=":Z" ;;
      *) echo "Invalid option: -${OPTARG}" >&2 ;;
     esac
   done
@@ -340,16 +351,13 @@ function _main
             _docker_container /bin/bash -c "${@}"
           fi
           ;;
-        *        ) _usage ; _unset_vars ; exit 1 ;;
+        *        ) _usage ; exit 1 ;;
       esac
       ;;
 
-    help) _usage ;;
-
-    *            ) _usage ; _unset_vars ; exit 1 ;;
+    help ) _usage ;;
+    *    ) _usage ; exit 1 ;;
   esac
-
-  _unset_vars
 }
 
 _main "${@}"

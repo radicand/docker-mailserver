@@ -19,7 +19,7 @@ A fullstack but simple mail server (SMTP, IMAP, Antispam, Antivirus...).
 Only configuration files, no SQL database. Keep it simple and versioned.
 Easy to deploy and upgrade.
 
-Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-mail-server-with-docker/)
+[Why was this image was created?](http://tvi.al/simple-mail-server-with-docker/)
 
 1. [Announcements](#announcements)
 2. [Includes](#includes)
@@ -31,13 +31,14 @@ Why I created this image: [Simple Mail Server with Docker](http://tvi.al/simple-
 
 ## Announcements
 
-1. Debian Buster is now Docker base image
+1. Since version `v7.1.0`, the use of default variables has changed slightly. Please consult the [environment Variables](#environment-variables) sections
+2. Debian Buster is now Docker base image
    - Filebeat was removed
    - Dovecot was downgraded
-2. ELK was removed
-3. New contributing guidelines were added
-4. Added coherent coding style and linting
-5. Added option to use non-default network interface
+3. ELK was removed
+4. New contributing guidelines were added
+5. Added coherent coding style and linting
+6. Added option to use non-default network interface
 
 ## Includes
 
@@ -87,35 +88,52 @@ Minimum:
 
 ### Get the tools
 
-Download the `docker-compose.yml`, `.env`, `env-mailserver` and the `setup.sh` files:
+Download the `docker-compose.yml`, `compose.env`, `mailserver.env` and the `setup.sh` files:
 
 ``` BASH
-curl -o setup.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x ./setup.sh
-curl -o docker-compose.yml https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml.dist
-curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/.env.dist
-curl -o env-mailserver https://raw.githubusercontent.com/tomav/docker-mailserver/master/env-mailserver.dist
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/docker-compose.yml
+wget https://raw.githubusercontent.com/tomav/docker-mailserver/master/mailserver.env
+curl -o .env https://raw.githubusercontent.com/tomav/docker-mailserver/master/compose.env
+
+chmod a+x ./setup.sh
 ```
 
 ### Create a docker-compose environment
 
 - [Install the latest docker-compose](https://docs.docker.com/compose/install/)
-- Edit the files `.env` and `env-mailserver` to your liking:
+- Edit the files `.env` and `mailserver.env` to your liking:
   - `.env` contains the configuration for docker-compose
-  - `env-mailserver` contains the configuration for the mailserver container
+  - `mailserver.env` contains the configuration for the mailserver container
   - These files supports only simple `VAR=VAL` lines (see [Documentation](https://docs.docker.com/compose/env-file/)).
   - Don't quote your values.
   - Variable substitution is *not* supported (e.g. `OVERRIDE_HOSTNAME=$HOSTNAME.$DOMAINNAME`).
 
-**Note:**: Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `env-mailserver` serves this case where environment variables are used in the container.
+**Note:** Variables in `.env` are expanded in the `docker-compose.yml` file **only** and **not** in the container. The file `mailserver.env` serves this case where environment variables are used in the container.
 
 **Note:** If you want to use a bare domain (host name equals domain name) see [FAQ](https://github.com/tomav/docker-mailserver/wiki/FAQ-and-Tips#can-i-use-nakedbare-domains-no-host-name).
 
 ### Get up and running
-
+**Note:** If using SELinux and is enabled, skip to next section below.
 ``` BASH
 docker-compose up -d mail
 ./setup.sh email add <user@domain> [<password>]
 ./setup.sh config dkim
+```
+
+### Get up and running with SELinux
+- Edit the files `.env` and `docker-compose.yml`:
+  - In `.env` uncomment the variable `SELINUX_LABEL`. 
+    - If you want the volume bind mount to be shared among other containers switch `-Z` to `-z`.  
+  - In `docker-compose.yml` uncomment the line that contains `${SELINUX_LABEL}` and comment out or remove the line above.
+  
+**Note:** When using `setup.sh` use the option `-z` or `-Z`. This should match the value of `SELINUX_LABEL` in the `.env` file.\
+See the [wiki](https://github.com/tomav/docker-mailserver/wiki/Setup-docker-mailserver-using-the-script-setup.sh) for more information regarding `setup.sh`.
+
+``` BASH
+docker-compose up -d mail
+./setup.sh -Z email add <user@domain> [<password>]
+./setup.sh -Z config dkim
 ```
 
 Now that the keys are generated, you can configure your DNS server by just pasting the content of `config/opendkim/keys/domain.tld/mail.txt` in your `domain.tld.hosts` zone.
@@ -256,6 +274,8 @@ volumes:
 ## Environment variables
 
 If an option doesn't work as documented here, check if you are running the latest image! Values in **bold** are the default values.
+
+**Note**: Since `docker-mailserver v7.1.0`, comparisons for environment variables are executed differently. If you previously used `VARIABLE=''` as the `empty` value, please **update** to now use `VARIABLE=`.
 
 ### Assignments
 

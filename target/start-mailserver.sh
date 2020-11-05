@@ -1,6 +1,6 @@
-#!/bin/bash
+#! /bin/bash
 
-# version  0.2.0
+# version  0.2.1
 #
 # Starts the mailserver.
 
@@ -49,7 +49,7 @@ DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
 DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:=1}"
 DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:=7}"
 DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
-# DEFAULT_VARS["DMS_DEBUG"] defined in helper_functions.sh
+# DEFAULT_VARS["DMS_DEBUG"] defined in helper-functions.sh
 
 ##########################################################################
 # << DEFAULT VARS
@@ -170,8 +170,8 @@ function register_functions
   _register_setup_function "_setup_environment"
   _register_setup_function "_setup_logrotate"
 
-  [[ ${PFLOGSUMM_TRIGGER} != "none" ]] && _register_setup_function "_setup_mail_summary"
-  [[ ${LOGWATCH_TRIGGER} != "none" ]] && _register_setup_function "_setup_logwatch"
+  _register_setup_function "_setup_mail_summary"
+  _register_setup_function "_setup_logwatch"
 
   _register_setup_function "_setup_user_patches"
 
@@ -397,7 +397,7 @@ function _setup_default_vars
 
   # set PFLOGSUMM_TRIGGER here for backwards compatibility
   # when REPORT_RECIPIENT is on the old method should be used
-  if [[ "${REPORT_RECIPIENT}" == "0" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]]
   then
     DEFAULT_VARS["PFLOGSUMM_TRIGGER"]="${PFLOGSUMM_TRIGGER:="none"}"
   else
@@ -405,7 +405,7 @@ function _setup_default_vars
   fi
 
   # expand address to simplify the rest of the script
-  if [[ "${REPORT_RECIPIENT}" == "0" ]] || [[ "${REPORT_RECIPIENT}" == "1" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "1" ]]
   then
     REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
     DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT}"
@@ -982,7 +982,7 @@ function _setup_postfix_aliases
       DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
 
       # if they are equal it means the line looks like: "user1     other@domain.tld"
-      [ "${UNAME}" != "${DOMAIN}" ] && echo "${DOMAIN}" >> /tmp/vhost.tmp
+      [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>/tmp/vhost.tmp
     done < <(grep -v "^\s*$\|^\s*\#" /tmp/docker-mailserver/postfix-virtual.cf || true)
   else
     _notify 'inf' "Warning 'config/postfix-virtual.cf' is not provided. No mail alias/forward created."
@@ -1321,13 +1321,13 @@ function _setup_postfix_override_configuration
 
   if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]
   then
-    while read -r line
+    while read -r LINE
     do
       # all valid postfix options start with a lower case letter
       # http://www.postfix.org/postconf.5.html
-      if [[ ${line} =~ ^[a-z] ]]
+      if [[ ${LINE} =~ ^[a-z] ]]
       then
-        postconf -e "${line}"
+        postconf -e "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-main.cf
     _notify 'inf' "Loaded 'config/postfix-main.cf'"
@@ -1337,11 +1337,11 @@ function _setup_postfix_override_configuration
 
   if [[ -f /tmp/docker-mailserver/postfix-master.cf ]]
   then
-    while read -r line
+    while read -r LINE
     do
-      if [[ "${line}" =~ ^[0-9a-z] ]]
+      if [[ ${LINE} =~ ^[0-9a-z] ]]
       then
-        postconf -P "${line}"
+        postconf -P "${LINE}"
       fi
     done < /tmp/docker-mailserver/postfix-master.cf
     _notify 'inf' "Loaded 'config/postfix-master.cf'"
@@ -1431,11 +1431,11 @@ function _setup_postfix_relay_hosts
   then
     _notify 'inf' "Adding relay authentication from postfix-sasl-password.cf"
 
-    while read -r line
+    while read -r LINE
     do
-      if ! echo "${line}" | grep -q -e "^\s*#"
+      if ! echo "${LINE}" | grep -q -e "^\s*#"
       then
-        echo "${line}" >> /etc/postfix/sasl_passwd
+        echo "${LINE}" >> /etc/postfix/sasl_passwd
       fi
     done < /tmp/docker-mailserver/postfix-sasl-password.cf
   fi
@@ -1483,14 +1483,14 @@ function _setup_postfix_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (postfix)"
-      rm -f /etc/postfix/dhparams.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
     else
       _notify 'inf' "Use postfix dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
       _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
       # Copy from the state directory to the working location
-      rm -f /etc/postfix/dhparams.pem && cp "${DHPARAMS_FILE}" /etc/postfix/dhparams.pem
+      cp -f "${DHPARAMS_FILE}" /etc/postfix/dhparams.pem
     fi
   else
     if [[ ! -f /etc/postfix/dhparams.pem ]]
@@ -1528,14 +1528,14 @@ function _setup_dovecot_dhparam
     if [[ ! -f ${DHPARAMS_FILE} ]]
     then
       _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
-      rm -f /etc/dovecot/dh.pem && cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+      cp -f /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
     else
       _notify 'inf' "Use dovecot dhparams that was generated previously"
       _notify 'warn' "Using self-generated dhparams is considered as insecure."
       _notify 'warn' "Unless you known what you are doing, please remove /var/mail-state/lib-shared/dhparams.pem."
 
       # Copy from the state directory to the working location
-      rm -f /etc/dovecot/dh.pem && cp "${DHPARAMS_FILE}" /etc/dovecot/dh.pem
+      cp -f "${DHPARAMS_FILE}" /etc/dovecot/dh.pem
     fi
   else
     if [[ ! -f /etc/dovecot/dh.pem ]]
@@ -1545,14 +1545,14 @@ function _setup_dovecot_dhparam
         _notify 'inf' "Copy postfix dhparams to dovecot"
         cp /etc/postfix/dhparams.pem /etc/dovecot/dh.pem
       elif [[ -f /tmp/docker-mailserver/dhparams.pem ]]
-    then
+      then
         _notify 'inf' "Copy pre-generated dhparams to dovecot"
         _notify 'warn' "Using self-generated dhparams is considered as insecure."
         _notify 'warn' "Unless you known what you are doing, please remove /tmp/docker-mailserver/dhparams.pem."
 
         cp /tmp/docker-mailserver/dhparams.pem /etc/dovecot/dh.pem
       else
-    _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
+        _notify 'inf' "Use ffdhe4096 for dhparams (dovecot)"
         cp /etc/postfix/shared/ffdhe4096.pem /etc/dovecot/dh.pem
       fi
     else
@@ -1725,6 +1725,7 @@ function _setup_mail_summary
       _notify 'inf' "Add postrotate action for pflogsumm report"
       sed -i "s|}|  postrotate\n    /usr/local/bin/postfix-summary ${HOSTNAME} ${PFLOGSUMM_RECIPIENT} ${PFLOGSUMM_SENDER}\n  endscript\n}\n|" /etc/logrotate.d/maillog
       ;;
+    "none" ) _notify 'inf' "Postfix log summary reports disabled. You can enable them with 'PFLOGSUMM_TRIGGER=daily_cron' or 'PFLOGSUMM_TRIGGER=logrotate'" ;;
     * ) _notify 'err' 'PFLOGSUMM_TRIGGER not found in _setup_mail_summery' ;;
   esac
 }
@@ -1750,6 +1751,7 @@ function _setup_logwatch
       >> /etc/cron.weekly/logwatch
       chmod 744 /etc/cron.weekly/logwatch
       ;;
+    "none" ) _notify 'inf' "Logwatch reports disabled. You can enable them with 'LOGWATCH_INTERVAL=daily' or 'LOGWATCH_INTERVAL=weekly'" ;;
     * ) _notify 'warn' 'LOGWATCH_INTERVAL not found in _setup_logwatch' ;;
   esac
 }
@@ -2088,8 +2090,8 @@ function _start_changedetector
 # !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# shellcheck source=/dev/null
-. /usr/local/bin/helper_functions.sh
+# shellcheck source=./helper-functions.sh
+. /usr/local/bin/helper-functions.sh
 
 if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
 then
