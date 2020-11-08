@@ -41,5 +41,5 @@ jobs:
             --build-arg VCS_VERSION=$VCS_VERSION \
             -t radicand/docker-mailserver:gha \
             -t radicand/docker-mailserver:latest \
-            -t radicand/docker-mailserver:${GITHUB_SHA::8}
+            -t radicand/docker-mailserver:${GITHUB_SHA::8} \
             --file ./Dockerfile .
