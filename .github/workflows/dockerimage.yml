@@ -2,9 +2,11 @@ name: buildx
 
 on:
   pull_request:
-    branches: master
+    branches:
+     - master
   push:
-    branches: master
+    branches:
+     - master
 
 jobs:
   buildx:
@@ -38,4 +40,6 @@ jobs:
             --build-arg VCS_REF=$VCS_REF \
             --build-arg VCS_VERSION=$VCS_VERSION \
             -t radicand/docker-mailserver:gha \
+            -t radicand/docker-mailserver:latest \
+            -t radicand/docker-mailserver:${GITHUB_SHA::8}
             --file ./Dockerfile .
