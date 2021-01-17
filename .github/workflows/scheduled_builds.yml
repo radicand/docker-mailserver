@@ -16,7 +16,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          TAGS="docker.io/mailserver/docker-mailserver:stable"
+          TAGS="${DOCKER_REPONAME}:stable"
           echo ::set-output name=tags::${TAGS}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
