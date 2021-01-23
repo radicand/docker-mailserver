@@ -16,7 +16,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          TAGS=${{ secrets.DOCKER_REPOSITORY }}:stable
+          TAGS=${{ secrets.DOCKER_REPOSITORY }}:stable,ghcr.io/${{ github.repository_owner }}/docker-mailserver:stable
           echo ::set-output name=tags::${TAGS}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
