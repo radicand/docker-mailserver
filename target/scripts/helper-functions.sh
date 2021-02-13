@@ -1,7 +1,21 @@
 #! /bin/bash
 
-# ? IP and CIDR -------------------------------------------
+DMS_DEBUG="${DMS_DEBUG:=0}"
 
+# ? ––––––––––––––––––––––––––––––––––––––––––––– BIN HELPER
+
+function errex
+{
+  echo "${@}" 1>&2
+  exit 1
+}
+
+function escape
+{
+  echo "${1//./\\.}"
+}
+
+# ? ––––––––––––––––––––––––––––––––––––––––––––– IP & CIDR
 
 function _mask_ip_digit
 {
@@ -43,9 +57,7 @@ function _sanitize_ipv4_to_subnet_cidr
 }
 export -f _sanitize_ipv4_to_subnet_cidr
 
-
-# ? ACME certs --------------------------------------------
-
+# ? ––––––––––––––––––––––––––––––––––––––––––––– ACME
 
 function _extract_certs_from_acme
 {
@@ -85,7 +97,7 @@ for key, value in acme.items():
 
     echo "${KEY}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/key.pem || exit 1
     echo "${CERT}" | base64 -d >/etc/letsencrypt/live/"${HOSTNAME}"/fullchain.pem || exit 1
-    echo "Cert found in /etc/letsencrypt/acme.json for ${1}"
+    _notify 'inf' "Cert found in /etc/letsencrypt/acme.json for ${1}"
 
     return 0
   else
@@ -94,60 +106,25 @@ for key, value in acme.items():
 }
 export -f _extract_certs_from_acme
 
-
-# ? Notification ------------------------------------------
-
-
-declare -A DEFAULT_VARS
-DEFAULT_VARS["DMS_DEBUG"]="${DMS_DEBUG:=0}"
+# ? ––––––––––––––––––––––––––––––––––––––––––––– Notifications
 
 function _notify
 {
-  c_red="\e[0;31m"
-  c_green="\e[0;32m"
-  c_brown="\e[0;33m"
-  c_blue="\e[0;34m"
-  c_bold="\033[1m"
-  c_reset="\e[0m"
+  { [[ -z ${1:-} ]] || [[ -z ${2:-} ]] ; } && return
 
-  notification_type=${1}
-  notification_msg=${2}
-  notification_format=${3}
-  msg=""
-
-  case "${notification_type}" in
-    'taskgrp' ) msg="${c_bold}${notification_msg}${c_reset}" ;;
-    'task'    )
-      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
-      then
-        msg="  ${notification_msg}${c_reset}"
-      fi
-      ;;
-    'inf'     )
-      if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
-      then
-        msg="${c_green}  * ${notification_msg}${c_reset}"
-      fi
-      ;;
-    'started' ) msg="${c_green} ${notification_msg}${c_reset}" ;;
-    'warn'    ) msg="${c_brown} Warning ${notification_msg}${c_reset}" ;;
-    'err'     ) msg="${c_blue} Error ${notification_msg}${c_reset}" ;;
-    'fatal'   ) msg="${c_red} Fatal Error: ${notification_msg}${c_reset}" ;;
-    *         ) msg="" ;;
+  case ${1} in
+    tasklog  ) echo "-e${3:-}" "[ \e[0;92mTASKLOG\e[0m ]  ${2}" ;; # light green
+    warn     ) echo "-e${3:-}" "[ \e[0;93mWARNING\e[0m ]  ${2}" ;; # light yellow
+    err      ) echo "-e${3:-}" "[  \e[0;31mERROR\e[0m  ]  ${2}" ;; # light red
+    fatal    ) echo "-e${3:-}" "[  \e[0;91mFATAL\e[0m  ]  ${2}" ;; # red
+    inf      ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[  \e[0;34mINF\e[0m  ]]  ${2}" ;; # light blue
+    task     ) [[ ${DMS_DEBUG} -eq 1 ]] && echo "-e${3:-}" "[[ \e[0;37mTASKS\e[0m ]]  ${2}" ;; # light grey
+    *        ) ;;
   esac
-
-  case "${notification_format}" in
-    'n' ) options="-ne" ;;
-    *   ) options="-e" ;;
-  esac
-
-  [[ -n "${msg}" ]] && echo "${options}" "${msg}"
 }
 export -f _notify
 
-
-# ? Relay Host Map ----------------------------------------
-
+# ? ––––––––––––––––––––––––––––––––––––––––––––– Relay Host Map
 
 # setup /etc/postfix/relayhost_map
 # --
@@ -184,9 +161,7 @@ function _populate_relayhost_map
 }
 export -f _populate_relayhost_map
 
-
-# ? File checksums ----------------------------------------
-
+# ? ––––––––––––––––––––––––––––––––––––––––––––– File Checksums
 
 # file storing the checksums of the monitored files.
 # shellcheck disable=SC2034

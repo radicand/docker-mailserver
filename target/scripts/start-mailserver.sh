@@ -1,63 +1,52 @@
 #! /bin/bash
 
 ##########################################################################
-# >> DEFAULT VARS
-#
-# add them here.
-# Example: DEFAULT_VARS["KEY"]="VALUE"
+# >> SETUP DEFAULT VALUES
 ##########################################################################
 
-declare -A DEFAULT_VARS
-
-DEFAULT_VARS["ENABLE_CLAMAV"]="${ENABLE_CLAMAV:=0}"
-DEFAULT_VARS["ENABLE_SPAMASSASSIN"]="${ENABLE_SPAMASSASSIN:=0}"
-DEFAULT_VARS["ENABLE_POP3"]="${ENABLE_POP3:=0}"
-DEFAULT_VARS["ENABLE_FAIL2BAN"]="${ENABLE_FAIL2BAN:=0}"
-DEFAULT_VARS["ENABLE_MANAGESIEVE"]="${ENABLE_MANAGESIEVE:=0}"
-DEFAULT_VARS["ENABLE_FETCHMAIL"]="${ENABLE_FETCHMAIL:=0}"
-DEFAULT_VARS["FETCHMAIL_POLL"]="${FETCHMAIL_POLL:=300}"
-DEFAULT_VARS["ENABLE_LDAP"]="${ENABLE_LDAP:=0}"
-DEFAULT_VARS["ENABLE_QUOTAS"]="${ENABLE_QUOTAS:=1}"
-DEFAULT_VARS["LDAP_START_TLS"]="${LDAP_START_TLS:="no"}"
-DEFAULT_VARS["DOVECOT_TLS"]="${DOVECOT_TLS:="no"}"
-DEFAULT_VARS["DOVECOT_MAILBOX_FORMAT"]="${DOVECOT_MAILBOX_FORMAT:="maildir"}"
-DEFAULT_VARS["ENABLE_POSTGREY"]="${ENABLE_POSTGREY:=0}"
-DEFAULT_VARS["POSTGREY_DELAY"]="${POSTGREY_DELAY:=300}"
-DEFAULT_VARS["POSTGREY_MAX_AGE"]="${POSTGREY_MAX_AGE:=35}"
-DEFAULT_VARS["POSTGREY_AUTO_WHITELIST_CLIENTS"]="${POSTGREY_AUTO_WHITELIST_CLIENTS:=5}"
-DEFAULT_VARS["POSTGREY_TEXT"]="${POSTGREY_TEXT:="Delayed by postgrey"}"
-DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}"  # ~10 MB by default
-DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"        # no limit by default
-DEFAULT_VARS["POSTFIX_INET_PROTOCOLS"]="${POSTFIX_INET_PROTOCOLS:="all"}"
-DEFAULT_VARS["ENABLE_SASLAUTHD"]="${ENABLE_SASLAUTHD:=0}"
-DEFAULT_VARS["SMTP_ONLY"]="${SMTP_ONLY:=0}"
-DEFAULT_VARS["OVERRIDE_HOSTNAME"]="${OVERRIDE_HOSTNAME}"
-DEFAULT_VARS["POSTSCREEN_ACTION"]="${POSTSCREEN_ACTION:="enforce"}"
-DEFAULT_VARS["SPOOF_PROTECTION"]="${SPOOF_PROTECTION:=0}"
-DEFAULT_VARS["TLS_LEVEL"]="${TLS_LEVEL:="modern"}"
-DEFAULT_VARS["ENABLE_SRS"]="${ENABLE_SRS:=0}"
-DEFAULT_VARS["SRS_SENDER_CLASSES"]="${SRS_SENDER_CLASSES:="envelope_sender"}"
-DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT:=0}"
-DEFAULT_VARS["LOGROTATE_INTERVAL"]="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-"daily"}}"
-DEFAULT_VARS["LOGWATCH_INTERVAL"]="${LOGWATCH_INTERVAL:="none"}"
-DEFAULT_VARS["EXPLICITLY_DEFINED_SPAMASSASSIN_SPAM_TO_INBOX"]="$( [ -z "${SPAMASSASSIN_SPAM_TO_INBOX}" ] && echo "0" || echo "1" )" # used for backward compatibility
-DEFAULT_VARS["SPAMASSASSIN_SPAM_TO_INBOX"]="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
-DEFAULT_VARS["MOVE_SPAM_TO_JUNK"]="${MOVE_SPAM_TO_JUNK:=1}"
-DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]="${VIRUSMAILS_DELETE_DELAY:=7}"
-DEFAULT_VARS["NETWORK_INTERFACE"]="${NETWORK_INTERFACE:="eth0"}"
-# DEFAULT_VARS["DMS_DEBUG"] defined in helper-functions.sh
-
-##########################################################################
-# << DEFAULT VARS
-##########################################################################
-
+DOVECOT_MAILBOX_FORMAT="${DOVECOT_MAILBOX_FORMAT:=maildir}"
+DOVECOT_TLS="${DOVECOT_TLS:=no}"
+ENABLE_CLAMAV="${ENABLE_CLAMAV:=0}"
+ENABLE_FAIL2BAN="${ENABLE_FAIL2BAN:=0}"
+ENABLE_FETCHMAIL="${ENABLE_FETCHMAIL:=0}"
+ENABLE_LDAP="${ENABLE_LDAP:=0}"
+ENABLE_MANAGESIEVE="${ENABLE_MANAGESIEVE:=0}"
+ENABLE_POP3="${ENABLE_POP3:=0}"
+ENABLE_POSTGREY="${ENABLE_POSTGREY:=0}"
+ENABLE_QUOTAS="${ENABLE_QUOTAS:=1}"
+ENABLE_SASLAUTHD="${ENABLE_SASLAUTHD:=0}"
+ENABLE_SPAMASSASSIN="${ENABLE_SPAMASSASSIN:=0}"
+ENABLE_SRS="${ENABLE_SRS:=0}"
+FETCHMAIL_POLL="${FETCHMAIL_POLL:=300}"
+FETCHMAIL_PARALLEL="${FETCHMAIL_PARALLEL:=0}"
+LDAP_START_TLS="${LDAP_START_TLS:=no}"
+LOGROTATE_INTERVAL="${LOGROTATE_INTERVAL:=${REPORT_INTERVAL:-daily}}"
+LOGWATCH_INTERVAL="${LOGWATCH_INTERVAL:=none}"
+MOVE_SPAM_TO_JUNK="${MOVE_SPAM_TO_JUNK:=1}"
+NETWORK_INTERFACE="${NETWORK_INTERFACE:=eth0}"
+ONE_DIR="${ONE_DIR:=0}"
+OVERRIDE_HOSTNAME="${OVERRIDE_HOSTNAME}"
+POSTGREY_AUTO_WHITELIST_CLIENTS="${POSTGREY_AUTO_WHITELIST_CLIENTS:=5}"
+POSTGREY_DELAY="${POSTGREY_DELAY:=300}"
+POSTGREY_MAX_AGE="${POSTGREY_MAX_AGE:=35}"
+POSTGREY_TEXT="${POSTGREY_TEXT:=Delayed by Postgrey}"
+POSTFIX_INET_PROTOCOLS="${POSTFIX_INET_PROTOCOLS:=all}"
+POSTFIX_MAILBOX_SIZE_LIMIT="${POSTFIX_MAILBOX_SIZE_LIMIT:=0}"         # no limit by default
+POSTFIX_MESSAGE_SIZE_LIMIT="${POSTFIX_MESSAGE_SIZE_LIMIT:=10240000}"  # ~10 MB by default
+POSTSCREEN_ACTION="${POSTSCREEN_ACTION:=enforce}"
+REPORT_RECIPIENT="${REPORT_RECIPIENT:="0"}"
+SMTP_ONLY="${SMTP_ONLY:=0}"
+SPAMASSASSIN_SPAM_TO_INBOX_IS_SET="$( if [[ -n ${SPAMASSASSIN_SPAM_TO_INBOX+'set'} ]]; then echo true ; else echo false ; fi )"
+SPAMASSASSIN_SPAM_TO_INBOX="${SPAMASSASSIN_SPAM_TO_INBOX:=0}"
+SPOOF_PROTECTION="${SPOOF_PROTECTION:=0}"
+SRS_SENDER_CLASSES="${SRS_SENDER_CLASSES:=envelope_sender}"
+SSL_TYPE="${SSL_TYPE:=''}"
+SUPERVISOR_LOGLEVEL="${SUPERVISOR_LOGLEVEL:=warn}"
+TLS_LEVEL="${TLS_LEVEL:=modern}"
+VIRUSMAILS_DELETE_DELAY="${VIRUSMAILS_DELETE_DELAY:=7}"
 
 ##########################################################################
-# >> GLOBAL VARS
-#
-# add your global script variables here.
-#
-# Example: KEY="VALUE"
+# >> GLOBAL VARIABLES
 ##########################################################################
 
 HOSTNAME="$(hostname -f)"
@@ -65,46 +54,44 @@ DOMAINNAME="$(hostname -d)"
 CHKSUM_FILE=/tmp/docker-mailserver-config-chksum
 
 ##########################################################################
-# << GLOBAL VARS
-##########################################################################
-
-
-##########################################################################
 # >> REGISTER FUNCTIONS
 #
-# add your new functions/methods here.
+# Add your new functions/methods here.
 #
-# NOTE: position matters when registering a function in stacks. First in First out
-# 		Execution Logic:
-# 			> check functions
-# 			> setup functions
-# 			> fix functions
-# 			> misc functions
-# 			> start-daemons
+# NOTE: Position matters when registering a function in stacks.
+#       First in First out
+#
+# Execution Logic:
+#   > check functions
+#   > setup functions
+#   > fix functions
+#   > misc functions
+#   > start-daemons
 #
 # Example:
+#
 # if [[ CONDITION IS MET ]]
 # then
-#   _register_{setup,fix,check,start}_{functions,daemons} "$FUNCNAME"
+#   _register_{setup,fix,check,start}_{functions,daemons} "${FUNCNAME}"
 # fi
 #
-# Implement them in the section-group: {check,setup,fix,start}
+# Implement them in the section-group: {check, setup, fix, start}
+#
 ##########################################################################
 
 function register_functions
 {
-  _notify 'taskgrp' 'Initializing setup'
-  _notify 'task' 'Registering check,setup,fix,misc and start-daemons functions'
+  _notify 'tasklog' 'Initializing setup'
+  _notify 'task' 'Registering check, setup, fix, misc and start-daemons functions'
 
   ################### >> check funcs
 
   _register_check_function "_check_environment_variables"
   _register_check_function "_check_hostname"
 
-  ################### << check funcs
-
   ################### >> setup funcs
 
+  _register_setup_function "_setup_supervisor"
   _register_setup_function "_setup_default_vars"
   _register_setup_function "_setup_file_permissions"
 
@@ -143,6 +130,7 @@ function register_functions
   _register_setup_function "_setup_postfix_postscreen"
   _register_setup_function "_setup_postfix_sizelimits"
 
+  # needs to come after _setup_postfix_aliases
   [[ ${SPOOF_PROTECTION} -eq 1 ]] && _register_setup_function "_setup_spoof_protection"
 
   if [[ ${ENABLE_SRS} -eq 1  ]]
@@ -153,14 +141,9 @@ function register_functions
 
   _register_setup_function "_setup_postfix_access_control"
 
-  if [[ -n ${AWS_SES_HOST} ]] && [[ -n ${AWS_SES_USERPASS} ]]
-  then
-    _register_setup_function "_setup_postfix_relay_hosts"
-  fi
-
-  [[ -n ${DEFAULT_RELAY_HOST} ]] && _register_setup_function "_setup_postfix_default_relay_host"
-  [[ -n ${RELAY_HOST} ]] && _register_setup_function "_setup_postfix_relay_hosts"
-  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT} -eq 1 ]] && _register_setup_function "_setup_postfix_virtual_transport"
+  [[ -n ${DEFAULT_RELAY_HOST:-''} ]] && _register_setup_function "_setup_postfix_default_relay_host"
+  [[ -n ${RELAY_HOST:-''} ]] && _register_setup_function "_setup_postfix_relay_hosts"
+  [[ ${ENABLE_POSTFIX_VIRTUAL_TRANSPORT:-0} -eq 1 ]] && _register_setup_function "_setup_postfix_virtual_transport"
 
   _register_setup_function "_setup_postfix_override_configuration"
   _register_setup_function "_setup_environment"
@@ -171,10 +154,8 @@ function register_functions
 
   _register_setup_function "_setup_user_patches"
 
-  # Compute last as the config files are modified in-place
+  # compute last as the config files are modified in-place
   _register_setup_function "_setup_chksum_file"
-
-  ################### << setup funcs
 
   ################### >> fix funcs
 
@@ -184,13 +165,9 @@ function register_functions
   [[ ${ENABLE_CLAMAV} -eq 0 ]] && _register_fix_function "_fix_cleanup_clamav"
   [[ ${ENABLE_SPAMASSASSIN} -eq 0 ]] &&	_register_fix_function "_fix_cleanup_spamassassin"
 
-  ################### << fix funcs
-
   ################### >> misc funcs
 
   _register_misc_function "_misc_save_states"
-
-  ################### << misc funcs
 
   ################### >> daemon funcs
 
@@ -209,14 +186,13 @@ function register_functions
   _register_start_daemon "_start_daemons_postfix"
 
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_start_daemon "_start_daemons_saslauthd"
-  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon "_start_daemons_fail2ban" # care :: needs to run after postfix
+  # care :: needs to run after postfix
+  [[ ${ENABLE_FAIL2BAN} -eq 1 ]] &&	_register_start_daemon "_start_daemons_fail2ban"
   [[ ${ENABLE_FETCHMAIL} -eq 1 ]] && _register_start_daemon "_start_daemons_fetchmail"
   [[ ${ENABLE_CLAMAV} -eq 1 ]] &&	_register_start_daemon "_start_daemons_clamav"
   [[ ${ENABLE_LDAP} -eq 0 ]] && _register_start_daemon "_start_changedetector"
 
   _register_start_daemon "_start_daemons_amavis"
-
-  ################### << daemon funcs
 }
 
 ##########################################################################
@@ -224,9 +200,9 @@ function register_functions
 ##########################################################################
 
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
+# ! ––– CARE – BEGIN –––––––––––––––––––––––––––––
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
 
 
 ##########################################################################
@@ -238,7 +214,6 @@ declare -a FUNCS_FIX
 declare -a FUNCS_CHECK
 declare -a FUNCS_MISC
 declare -a DAEMONS_START
-# declare -A HELPERS_EXEC_STATE
 
 ##########################################################################
 # << CONSTANTS
@@ -294,23 +269,22 @@ function display_startup_daemon
   ${1} &>/dev/null
   local RES=${?}
 
-  if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
+  if [[ ${DMS_DEBUG} -eq 1 ]]
   then
     if [[ ${RES} -eq 0 ]]
     then
-      _notify 'started' " [ OK ]"
+      _notify 'inf' " OK"
     else
-      echo "false"
-      _notify 'err' " [ FAILED ]"
+      _notify 'err' " STARTUP FAILED"
     fi
   fi
 
   return "${RES}"
 }
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# !  CARE --> DON'T CHANGE, except you know exactly what you are doing
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
+# ! ––– CARE – END –––––––––––––––––––––––––––––––
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
 
 
 ##########################################################################
@@ -321,7 +295,7 @@ function display_startup_daemon
 
 function check
 {
-  _notify 'taskgrp' 'Checking configuration'
+  _notify 'tasklog' 'Checking configuration'
 
   for FUNC in "${FUNCS_CHECK[@]}"
   do
@@ -336,16 +310,16 @@ function _check_hostname
 {
   _notify "task" "Check that hostname/domainname is provided or overridden (no default docker hostname/kubernetes) [in ${FUNCNAME[0]}]"
 
-  if [[ -n ${DEFAULT_VARS["OVERRIDE_HOSTNAME"]} ]]
+  if [[ -n ${OVERRIDE_HOSTNAME} ]]
   then
-    export HOSTNAME=${DEFAULT_VARS["OVERRIDE_HOSTNAME"]}
+    export HOSTNAME=${OVERRIDE_HOSTNAME}
     export DOMAINNAME="${HOSTNAME#*.}"
   fi
 
   _notify 'inf' "Domain has been set to ${DOMAINNAME}"
   _notify 'inf' "Hostname has been set to ${HOSTNAME}"
 
-  if ( ! echo "${HOSTNAME}" | grep -E '^(\S+[.]\S+)$' > /dev/null )
+  if ( ! grep -E '^(\S+[.]\S+)$' <<< "${HOSTNAME}" >/dev/null )
   then
     _notify 'err' "Setting hostname/domainname is required"
     kill "$(< /var/run/supervisord.pid)" && return 1
@@ -373,54 +347,106 @@ function _check_environment_variables
 
 function setup
 {
-  _notify 'taskgrp' 'Configuring mail server'
+  _notify 'tasklog' 'Configuring mail server'
   for FUNC in "${FUNCS_SETUP[@]}"
   do
     ${FUNC}
   done
 }
 
+function _setup_supervisor
+{
+  case ${SUPERVISOR_LOGLEVEL} in
+    critical | error | warn | info | debug )
+      sed -i -E \
+        "s+loglevel.*+loglevel = ${SUPERVISOR_LOGLEVEL}+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+    * )
+      _notify 'warn' \
+        "SUPERVISOR_LOGLEVEL value '${SUPERVISOR_LOGLEVEL}' unknown. Defaulting to 'warn'"
+      sed -i -E \
+        "s+loglevel.*+loglevel = warn+g" \
+        /etc/supervisor/supervisord.conf
+      ;;
+  esac
+
+  supervisorctl update
+}
+
 function _setup_default_vars
 {
-  _notify 'task' "Setting up default variables [in ${FUNCNAME[0]}]"
+  _notify 'task' "Setting up default variables"
 
   # update POSTMASTER_ADDRESS - must be done done after _check_hostname
-  DEFAULT_VARS["POSTMASTER_ADDRESS"]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
+  POSTMASTER_ADDRESS="${POSTMASTER_ADDRESS:="postmaster@${DOMAINNAME}"}"
 
   # update REPORT_SENDER - must be done done after _check_hostname
-  DEFAULT_VARS["REPORT_SENDER"]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
-  DEFAULT_VARS["PFLOGSUMM_SENDER"]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
+  REPORT_SENDER="${REPORT_SENDER:="mailserver-report@${HOSTNAME}"}"
+  PFLOGSUMM_SENDER="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
 
   # set PFLOGSUMM_TRIGGER here for backwards compatibility
   # when REPORT_RECIPIENT is on the old method should be used
+  # ! needs to be a string comparison
   if [[ ${REPORT_RECIPIENT} == "0" ]]
   then
-    DEFAULT_VARS["PFLOGSUMM_TRIGGER"]="${PFLOGSUMM_TRIGGER:="none"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=none}"
   else
-    DEFAULT_VARS["PFLOGSUMM_TRIGGER"]="${PFLOGSUMM_TRIGGER:="logrotate"}"
+    PFLOGSUMM_TRIGGER="${PFLOGSUMM_TRIGGER:=logrotate}"
   fi
 
   # expand address to simplify the rest of the script
-  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "1" ]]
+  if [[ ${REPORT_RECIPIENT} == "0" ]] || [[ ${REPORT_RECIPIENT} == "0" ]]
   then
     REPORT_RECIPIENT="${POSTMASTER_ADDRESS}"
-    DEFAULT_VARS["REPORT_RECIPIENT"]="${REPORT_RECIPIENT}"
+    REPORT_RECIPIENT="${REPORT_RECIPIENT}"
   fi
 
-  DEFAULT_VARS["PFLOGSUMM_RECIPIENT"]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
-  DEFAULT_VARS["LOGWATCH_RECIPIENT"]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
+  PFLOGSUMM_RECIPIENT="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
+  LOGWATCH_RECIPIENT="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
 
-  for var in "${!DEFAULT_VARS[@]}"
-  do
-    if ! echo "export ${var}=\"${DEFAULT_VARS[${var}]}\"" >>/root/.bashrc
-    then
-      _notify 'err' "Unable to set ${var}=${DEFAULT_VARS[${var}]}"
-      kill -15 "$(< /var/run/supervisord.pid)"
-      return 1
-    fi
-
-    _notify 'inf' "Set ${var}=${DEFAULT_VARS[${var}]}"
-  done
+  {
+    echo "DOVECOT_MAILBOX_FORMAT=${DOVECOT_MAILBOX_FORMAT}"
+    echo "DOVECOT_TLS=${DOVECOT_TLS}"
+    echo "ENABLE_CLAMAV=${ENABLE_CLAMAV}"
+    echo "ENABLE_FAIL2BAN=${ENABLE_FAIL2BAN}"
+    echo "ENABLE_FETCHMAIL=${ENABLE_FETCHMAIL}"
+    echo "ENABLE_LDAP=${ENABLE_LDAP}"
+    echo "ENABLE_MANAGESIEVE=${ENABLE_MANAGESIEVE}"
+    echo "ENABLE_POP3=${ENABLE_POP3}"
+    echo "ENABLE_POSTGREY=${ENABLE_POSTGREY}"
+    echo "ENABLE_QUOTAS=${ENABLE_QUOTAS}"
+    echo "ENABLE_SASLAUTHD=${ENABLE_SASLAUTHD}"
+    echo "ENABLE_SPAMASSASSIN=${ENABLE_SPAMASSASSIN}"
+    echo "ENABLE_SRS=${ENABLE_SRS}"
+    echo "FETCHMAIL_POLL=${FETCHMAIL_POLL}"
+    echo "FETCHMAIL_PARALLEL=${FETCHMAIL_PARALLEL}"
+    echo "LDAP_START_TLS=${LDAP_START_TLS}"
+    echo "LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL}"
+    echo "LOGWATCH_INTERVAL=${LOGWATCH_INTERVAL}"
+    echo "MOVE_SPAM_TO_JUNK=${MOVE_SPAM_TO_JUNK}"
+    echo "NETWORK_INTERFACE=${NETWORK_INTERFACE}"
+    echo "ONE_DIR=${ONE_DIR}"
+    echo "OVERRIDE_HOSTNAME=${OVERRIDE_HOSTNAME}"
+    echo "POSTGREY_AUTO_WHITELIST_CLIENTS=${POSTGREY_AUTO_WHITELIST_CLIENTS}"
+    echo "POSTGREY_DELAY=${POSTGREY_DELAY}"
+    echo "POSTGREY_MAX_AGE=${POSTGREY_MAX_AGE}"
+    echo "POSTGREY_TEXT=${POSTGREY_TEXT}"
+    echo "POSTFIX_INET_PROTOCOLS=${POSTFIX_INET_PROTOCOLS}"
+    echo "POSTFIX_MAILBOX_SIZE_LIMIT=${POSTFIX_MAILBOX_SIZE_LIMIT}"
+    echo "POSTFIX_MESSAGE_SIZE_LIMIT=${POSTFIX_MESSAGE_SIZE_LIMIT}"
+    echo "POSTSCREEN_ACTION=${POSTSCREEN_ACTION}"
+    echo "REPORT_RECIPIENT=${REPORT_RECIPIENT}"
+    echo "SMTP_ONLY=${SMTP_ONLY}"
+    echo "SPAMASSASSIN_SPAM_TO_INBOX=${SPAMASSASSIN_SPAM_TO_INBOX}"
+    echo "SPOOF_PROTECTION=${SPOOF_PROTECTION}"
+    echo "SRS_SENDER_CLASSES=${SRS_SENDER_CLASSES}"
+    echo "SSL_TYPE=${SSL_TYPE}"
+    echo "SUPERVISOR_LOGLEVEL=${SUPERVISOR_LOGLEVEL}"
+    echo "TLS_LEVEL=${TLS_LEVEL}"
+    echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}"
+    echo "DMS_DEBUG=${DMS_DEBUG}"
+  } >>/root/.bashrc
 }
 
 # File/folder permissions are fine when using docker volumes, but may be wrong
@@ -631,11 +657,11 @@ function _setup_dovecot_quota
         sed -i "s/mail_plugins = \$mail_plugin/mail_plugins = \$mail_plugins imap_quota/g" /etc/dovecot/conf.d/20-imap.conf
       fi
 
-      message_size_limit_mb=$((DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"] / 1000000))
-      mailbox_limit_mb=$((DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"] / 1000000))
+      local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
+      local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
-      sed -i "s/quota_max_mail_size =.*/quota_max_mail_size = ${message_size_limit_mb}$([[ ${message_size_limit_mb} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
-      sed -i "s/quota_rule = \*:storage=.*/quota_rule = *:storage=${mailbox_limit_mb}$([[ ${mailbox_limit_mb} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
+      sed -i "s/quota_max_mail_size =.*/quota_max_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
+      sed -i "s/quota_rule = \*:storage=.*/quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")/g" /etc/dovecot/conf.d/90-quota.conf
 
       if [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]
       then
@@ -804,6 +830,9 @@ function _setup_ldap
     _notify 'inf' "==> Warning: /etc/postfix/ldap-aliases.cf or /etc/postfix/ldap-groups.cf not found"
   fi
 
+  # shellcheck disable=SC2016
+  sed -i 's+mydestination = \$myhostname, +mydestination = +' /etc/postfix/main.cf
+
   return 0
 }
 
@@ -843,13 +872,13 @@ function _setup_postfix_postscreen
 function _setup_postfix_sizelimits
 {
   _notify 'inf' "Configuring postfix message size limit"
-  postconf -e "message_size_limit = ${DEFAULT_VARS["POSTFIX_MESSAGE_SIZE_LIMIT"]}"
+  postconf -e "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
 
   _notify 'inf' "Configuring postfix mailbox size limit"
-  postconf -e "mailbox_size_limit = ${DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]}"
+  postconf -e "mailbox_size_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 
   _notify 'inf' "Configuring postfix virtual mailbox size limit"
-  postconf -e "virtual_mailbox_limit = ${DEFAULT_VARS["POSTFIX_MAILBOX_SIZE_LIMIT"]}"
+  postconf -e "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 }
 
 function _setup_postfix_smtputf8
@@ -861,10 +890,21 @@ function _setup_postfix_smtputf8
 function _setup_spoof_protection
 {
   _notify 'inf' "Configuring Spoof Protection"
-  sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,|' /etc/postfix/main.cf
+  sed -i \
+    's+smtpd_sender_restrictions =+smtpd_sender_restrictions = reject_authenticated_sender_login_mismatch,+' \
+    /etc/postfix/main.cf
 
-  # shellcheck disable=SC2015
-  [[ ${ENABLE_LDAP} -eq 1 ]] && postconf -e "smtpd_sender_login_maps=ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf" || postconf -e "smtpd_sender_login_maps=texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/regexp, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+  if [[ ${ENABLE_LDAP} -eq 1 ]]
+  then
+    postconf -e "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf ldap:/etc/postfix/ldap-aliases.cf ldap:/etc/postfix/ldap-groups.cf"
+  else
+    if [[ -f /etc/postfix/regexp ]]
+    then
+      postconf -e "smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }"
+    else
+      postconf -e "smtpd_sender_login_maps = texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre"
+    fi
+  fi
 }
 
 function _setup_postfix_access_control
@@ -909,8 +949,8 @@ function _setup_saslauthd
   _notify 'inf' "Configuring Cyrus SASL"
 
   # checking env vars and setting defaults
-  [[ -z ${SASLAUTHD_MECHANISMS} ]] && SASLAUTHD_MECHANISMS=pam
-  [[ ${SASLAUTHD_MECHANISMS} == ldap ]] && [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_MECHANISMS=pam
+  [[ -z ${SASLAUTHD_MECHANISMS:-} ]] && SASLAUTHD_MECHANISMS=pam
+  [[ ${SASLAUTHD_MECHANISMS:-} == ldap ]] && [[ -z ${SASLAUTHD_LDAP_SEARCH_BASE} ]] && SASLAUTHD_MECHANISMS=pam
   [[ -z ${SASLAUTHD_LDAP_SERVER} ]] && SASLAUTHD_LDAP_SERVER=localhost
   [[ -z ${SASLAUTHD_LDAP_FILTER} ]] && SASLAUTHD_LDAP_FILTER='(&(uniqueIdentifier=%u)(mailEnabled=TRUE))'
 
@@ -1027,10 +1067,9 @@ function _setup_postfix_aliases
     _notify 'inf' "Adding regexp alias file postfix-regexp.cf"
 
     cp -f /tmp/docker-mailserver/postfix-regexp.cf /etc/postfix/regexp
-    sed -i -e '/^virtual_alias_maps/{
-s/ pcre:.*//
-s/$/ pcre:\/etc\/postfix\/regexp/
-}' /etc/postfix/main.cf
+    sed -i -E \
+      's+virtual_alias_maps(.*)+virtual_alias_maps\1 pcre:/etc/postfix/regexp+g' \
+      /etc/postfix/main.cf
   fi
 
   _notify 'inf' "Configuring root alias"
@@ -1109,6 +1148,7 @@ function _setup_ssl
 
       _notify 'inf' "TLS configured with 'modern' ciphers"
       ;;
+
     "intermediate" )
       # Postfix configuration
       sed -i -r 's/^smtpd_tls_mandatory_protocols =.*$/smtpd_tls_mandatory_protocols = !SSLv2,!SSLv3/' /etc/postfix/main.cf
@@ -1122,7 +1162,11 @@ function _setup_ssl
 
       _notify 'inf' "TLS configured with 'intermediate' ciphers"
       ;;
-    * ) _notify 'err' 'TLS_LEVEL not found _setup_ssl' ;;
+
+    * )
+      _notify 'err' 'TLS_LEVEL not found [ in _setup_ssl ]'
+      ;;
+
   esac
 
   # SSL certificate Configuration
@@ -1265,7 +1309,7 @@ function _setup_ssl
       fi
       ;;
     '' )
-      # ${SSL_TYPE}=empty, no SSL certificate, plain text access
+      # no SSL certificate, plain text access
 
       # Dovecot configuration
       sed -i -e 's~#disable_plaintext_auth = yes~disable_plaintext_auth = no~g' /etc/dovecot/conf.d/10-auth.conf
@@ -1304,10 +1348,11 @@ function _setup_docker_permit
   _notify 'task' 'Setting up PERMIT_DOCKER Option'
 
   local CONTAINER_IP CONTAINER_NETWORK
+
   unset CONTAINER_NETWORKS
   declare -a CONTAINER_NETWORKS
 
-  CONTAINER_IP=$(ip addr show "${DEFAULT_VARS['NETWORK_INTERFACE']}" | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
+  CONTAINER_IP=$(ip addr show "${NETWORK_INTERFACE}" | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1)
   CONTAINER_NETWORK="$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0"
 
   while read -r IP
@@ -1430,35 +1475,7 @@ function _setup_postfix_relay_hosts
 {
   _notify 'task' 'Setting up Postfix Relay Hosts'
 
-  # copy old AWS_SES variables to new variables
-  if [[ -z ${RELAY_HOST} ]]
-  then
-    if [[ -n ${AWS_SES_HOST} ]]
-    then
-      _notify 'inf' "Using deprecated AWS_SES environment variables"
-      RELAY_HOST="${AWS_SES_HOST}"
-    fi
-  fi
-
-  if [[ -z ${RELAY_PORT} ]]
-  then
-    if [[ -z ${AWS_SES_PORT} ]]
-    then
-      RELAY_PORT=25
-    else
-      RELAY_PORT=${AWS_SES_PORT}
-    fi
-  fi
-
-  if [[ -z ${RELAY_USER} ]]
-  then
-    if [[ -n ${AWS_SES_USERPASS} ]]
-    then
-      # NB this will fail if the password contains a colon!
-      RELAY_USER=$(echo "${AWS_SES_USERPASS}" | cut -f 1 -d ":")
-      RELAY_PASSWORD=$(echo "${AWS_SES_USERPASS}" | cut -f 2 -d ":")
-    fi
-  fi
+  [[ -z ${RELAY_PORT} ]] && RELAY_PORT=25
 
   _notify 'inf' "Setting up outgoing email relaying via ${RELAY_HOST}:${RELAY_PORT}"
 
@@ -1676,7 +1693,7 @@ function _setup_security_stack
       sed -i "s/\$final_spam_destiny.*=.*$/\$final_spam_destiny = D_BOUNCE;/g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s/\$final_bad_header_destiny.*=.*$/\$final_bad_header_destiny = D_BOUNCE;/g" /etc/amavis/conf.d/49-docker-mailserver
 
-      if [[ ${DEFAULT_VARS['EXPLICITLY_DEFINED_SPAMASSASSIN_SPAM_TO_INBOX']} == "0" ]]
+      if ! ${SPAMASSASSIN_SPAM_TO_INBOX_IS_SET}
       then
         _notify 'warn' "Spam messages WILL NOT BE DELIVERED, you will NOT be notified of ANY message bounced. Please define SPAMASSASSIN_SPAM_TO_INBOX explicitly."
       fi
@@ -1799,7 +1816,7 @@ function _setup_logwatch
   esac
 }
 
-function _setup_user_patches()
+function _setup_user_patches
 {
   if [[ -f /tmp/docker-mailserver/user-patches.sh ]]
   then
@@ -1818,16 +1835,16 @@ function _setup_user_patches()
   fi
 }
 
-function _setup_environment() {
+function _setup_environment
+{
   _notify 'task' 'Setting up /etc/environment'
 
-  local banner="# docker environment"
-  local var
+  local BANNER="# Docker Environment"
 
-  if ! grep -q "${banner}" /etc/environment
+  if ! grep -q "${BANNER}" /etc/environment
   then
-      echo "${banner}" >> /etc/environment
-      echo "VIRUSMAILS_DELETE_DELAY=${DEFAULT_VARS["VIRUSMAILS_DELETE_DELAY"]}" >> /etc/environment
+      echo "${BANNER}" >> /etc/environment
+      echo "VIRUSMAILS_DELETE_DELAY=${VIRUSMAILS_DELETE_DELAY}" >> /etc/environment
   fi
 }
 
@@ -1924,7 +1941,7 @@ function _fix_cleanup_spamassassin
 
 function misc
 {
-  _notify 'taskgrp' 'Starting Misc'
+  _notify 'inf' 'Startin misc'
 
   for FUNC in "${FUNCS_MISC[@]}"
   do
@@ -1992,7 +2009,7 @@ function _misc_save_states
 
 function start_daemons
 {
-  _notify 'taskgrp' 'Starting mail server'
+  _notify 'tasklog' 'Starting mail server'
 
   for FUNC in "${DAEMONS_START[@]}"
   do
@@ -2090,9 +2107,46 @@ function _start_daemons_dovecot
 
 function _start_daemons_fetchmail
 {
-  _notify 'task' 'Starting fetchmail' 'n'
+  _notify 'task' 'Preparing fetchmail config'
   /usr/local/bin/setup-fetchmail
-  supervisorctl start fetchmail
+  if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]
+  then
+    mkdir /etc/fetchmailrc.d/
+    /usr/local/bin/fetchmailrc_split
+
+    COUNTER=0
+    for RC in /etc/fetchmailrc.d/fetchmail-*.rc
+    do
+      COUNTER=$((COUNTER+1))
+      cat <<EOF > "/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf"
+[program:fetchmail-${COUNTER}]
+startsecs=0
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+user=fetchmail
+command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+EOF
+      chmod 700 "${RC}"
+      chown fetchmail:root "${RC}"
+    done
+
+    supervisorctl reread
+    supervisorctl update
+
+    COUNTER=0
+    for _ in /etc/fetchmailrc.d/fetchmail-*.rc
+    do
+      COUNTER=$((COUNTER+1))
+      _notify 'task' "Starting fetchmail instance ${COUNTER}" 'n'
+      supervisorctl start "fetchmail-${COUNTER}"
+    done
+
+  else
+    _notify 'task' 'Starting fetchmail' 'n'
+    supervisorctl start fetchmail
+  fi
 }
 
 function _start_daemons_clamav
@@ -2129,52 +2183,35 @@ function _start_changedetector
   supervisorctl start changedetector
 }
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
+# ! ––– CARE – BEGIN –––––––––––––––––––––––––––––
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
 
 # shellcheck source=./helper-functions.sh
 . /usr/local/bin/helper-functions.sh
 
-if [[ ${DEFAULT_VARS["DMS_DEBUG"]} -eq 1 ]]
+if [[ ${DMS_DEBUG:-0} -eq 1 ]]
 then
-  _notify 'taskgrp' ""
-  _notify 'taskgrp' "#"
-  _notify 'taskgrp' "#"
-  _notify 'taskgrp' "# ENV"
-  _notify 'taskgrp' "#"
-  _notify 'taskgrp' "#"
-  _notify 'taskgrp' ""
+  _notify 'inf' 'ENVIRONMENT'
   printenv
 fi
 
-_notify 'taskgrp' ""
-_notify 'taskgrp' "#"
-_notify 'taskgrp' "#"
-_notify 'taskgrp' "# docker-mailserver"
-_notify 'taskgrp' "#"
-_notify 'taskgrp' "#"
-_notify 'taskgrp' ""
+_notify 'inf' 'Welcome to docker-mailserver!'
 
 register_functions
-
 check
 setup
 fix
 misc
 start_daemons
 
-_notify 'taskgrp' ""
-_notify 'taskgrp' "#"
-_notify 'taskgrp' "# ${HOSTNAME} is up and running"
-_notify 'taskgrp' "#"
-_notify 'taskgrp' ""
+_notify 'tasklog' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
 tail -fn 0 /var/log/mail/mail.log
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# !  CARE --> DON'T CHANGE, unless you exactly know what you are doing
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
+# ! ––– CARE – END –––––––––––––––––––––––––––––––
+# ! ––––––––––––––––––––––––––––––––––––––––––––––
 
 exit 0
